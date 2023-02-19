@@ -1,5 +1,3 @@
-// ini code gua @gemasagara semua yang bikin
-
 #include <Wire.h> // library buat komunikasi i2c
 #include <LiquidCrystal_I2C.h> // library buat lcd i2c
 #include "DHTesp.h" // library dht buat esp
