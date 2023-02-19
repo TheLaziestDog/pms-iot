@@ -4,6 +4,8 @@ APIS or Automated Plant Incubator System, is an engineering school project that 
 
 ## ✨ Circuit Design ✨
 ![Circuit1](/Image/SMARTINCUBATOR-AMICA-COMPLETE-I2C-FIXED.jpg)
+
 *Fritzing circuit design concept*
 ![Circuit2](/Image/circuit.png)
+
 *Circuit based on the Fritzing design*
