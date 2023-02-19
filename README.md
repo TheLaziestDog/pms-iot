@@ -12,5 +12,5 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 *Circuit based on the Fritzing design*
 
 ## ✨ Social Links ✨
-Our Amazing School✨: [Madrasah Technonatura Depok](https://www.technonatura.sch.id/)
-Our Instagram Page✨: [NATECH](https://www.instagram.com/natecinovationinc/)
+- [Our Amazing School](https://www.technonatura.sch.id/)✨
+- [Our Instagram Page](https://www.instagram.com/natecinovationinc/)✨
