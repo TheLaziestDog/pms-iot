@@ -1,7 +1,7 @@
     /*
      * I2C Scanner
-     * Explored by Elangsakti.com
-     * # Hack Your Skill!
+     * THIS ONLY WORK FOR ARDUINO DEVICES, SUCH AS THE ARDUINO UNO
+     * Referenced from Elangsakti.com
      */
      
     #include <Wire.h>
@@ -11,10 +11,10 @@
         Serial.begin(9600);
         while(!Serial);
      
-        Serial.println("#============o0o=============#");
-        Serial.println("#         I2C Scanner        #");
-        Serial.println("# Explored by Elangsakti.com #");
-        Serial.println("#============================#");
+        Serial.println("#==============o0o===============#");
+        Serial.println("#           I2C Scanner          #");
+        Serial.println("# Referenced from Elangsakti.com #");
+        Serial.println("#================================#");
      
         Cari_Alamat();
     }
