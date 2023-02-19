@@ -5,10 +5,12 @@
 DHTesp dht;
 LiquidCrystal_I2C lcd(0x27, 16, 2); //0x27 itu address lcd (buat ngecek pake yang i2c_address_scanner.ino), 16 itu kolom dari lcd nya, 2 itu baris dari lcd nya
 
+const byte dhtPin = 0; // GPIO 0 = D3
+
 void setup() {
   lcd.init();
   Serial.begin(9600);
-  dht.setup(0, DHTesp::DHT11); // ini buat ngasih tau ke esp kalo sensor dht11 itu ada di GPIO 0 (D3)
+  dht.setup(dhtPin, DHTesp::DHT11); // ini buat ngasih tau ke esp kalo sensor dht11 itu ada di GPIO 0 (D3)
 }
 
 void loop() {
