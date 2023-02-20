@@ -12,7 +12,7 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 *Circuit based on the Fritzing design*
 
 ## ❤️ Contribute
-To contribute, you need to make a new branch and adding changes inside that branch, or you can just adding changes in the main branch, but you need to check the "Create a new branch for this commit and start a pull request", so it can automatically create new branch for your changes, so your changes can be merged from pull request. 
+To contribute, you need to make a new branch and adding changes inside that branch, or you can just adding changes in the main branch, but you need to click on the "Create a new branch for this commit and start a pull request", so it can automatically create new branch for your changes, so your changes can be merged from pull request. 
 
 It's that easy to contribute, if you want to discuss about anything outside the code itself, feel free to talk and dm me on discord! 
 
