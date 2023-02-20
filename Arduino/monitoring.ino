@@ -1,3 +1,5 @@
+// this is a code for NATECH Innovations, INC
+
 #include <Wire.h> // library buat komunikasi i2c
 #include <LiquidCrystal_I2C.h> // library buat lcd i2c
 #include "DHTesp.h" // library dht buat esp
