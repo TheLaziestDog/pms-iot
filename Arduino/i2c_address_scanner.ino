@@ -13,7 +13,7 @@
      
         Serial.println("#==============o0o===============#");
         Serial.println("#           I2C Scanner          #");
-        Serial.println("# Referenced from Elangsakti.com #");
+        Serial.println("#     NATECH INNOVATIONS INC     #");
         Serial.println("#================================#");
      
         Cari_Alamat();
