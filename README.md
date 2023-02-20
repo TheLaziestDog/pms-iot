@@ -2,7 +2,7 @@
 
 PMS or Plant Monitoring System, is a school engineering project that utilize Automation and Internet of Things (IoT) technology to monitor and mantain incubators used for plant tissue culture. The system is focuses to automate and reduce the labor and time required to maintain and monitor a plant tissue culture incubator, making the plant tissue culture process more efficient and cost-effective.
 
-## ❤️ Contribute
+## ❤️ How To Contribute
 To contribute, you need to make a new branch and adding changes inside that branch, or you can just adding changes in the main branch, but you need to click on the "Create a new branch for this commit and start a pull request", so it can automatically create new branch for your changes, so your changes can be merged from pull request. 
 
 It's that easy to contribute, if you want to discuss about anything outside the code itself, feel free to talk and dm me on discord! 
