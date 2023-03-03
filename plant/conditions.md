@@ -1,1 +1,0 @@
-# 🌱 Plant Condition Requirement
