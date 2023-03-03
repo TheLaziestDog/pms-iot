@@ -5,8 +5,8 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 ## ✨ Features
 
 ### Monitoring
-- Shows the plant [conditions](plant/conditions.md) on the LCD
-- Monitor plant [conditions](plant/conditions.md) over IoT
+- Shows the plant [conditions](plant/about.md) on the LCD
+- Monitor plant [conditions](plant/about.md) over IoT
 - Give daily notification of the plant on telegram
 
 ### Automation
