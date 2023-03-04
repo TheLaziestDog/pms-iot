@@ -11,7 +11,7 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 
 ### Automation
 - Automatic plant watering
-- Automatic fertilizer (&nutrition) feeder
+- Automatic fertilizer (nutrition) feeder
 - Maintain plant soil moisture
 - Maintain incubator temperature
 - Maintain the amount of light intensity the plant will get
