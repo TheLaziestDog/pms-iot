@@ -7,9 +7,8 @@
     - Komunikasi dari sensor ke Google Sheets
 */
 
-
 // List library
-#include <Wire.h> // library komunikasi i2c
+#include <Wire.h> // library komunikasi i2c 
 #include <LiquidCrystal_I2C.h> // library lcd i2c
 #include "DHTesp.h" // library dht buat esp
 
@@ -29,16 +28,14 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
  * 4 itu jumlah baris lcd nya (vertical)
  */
 
-// RELAY
+// Other Sensors
 const byte dhtPin = 12; // GPIO 12 = D6
-const byte solenoid = 0;
+const byte ldrSensor = 13; // GPIO 13 = D7
+
+// RELAY
+const byte solenoid = 0; // GPIO 0 = D3
 const byte fan = 2;
 const byte ledStrip = 14;
-
-const int OnHour = 7; //SET TIME TO ON RELAY (24 HOUR FORMAT)
-const int OnMin = 23;
-const int OffHour = 7; //SET TIME TO OFF RELAY
-const int OffMin = 25 ;
 
 // CAPACITIVE SOIL MOISTURE
 const int wetRange = 2;   //perlu kalibrasi ulang
@@ -48,9 +45,10 @@ float soilMoistureValue = 0;
 float soilmoisturepercent=0;
 
 // GOOGLE SHEETS
-char column_name_in_sheets[ ][20] = {"temperature","humidity"};                        /*1. The Total no of column depends on how many value you have created in Script of Sheets;2. It has to be in order as per the rows decided in google sheets*/
-String Sheets_GAS_ID = "AKfycbyGk5g3AZDWbjOOKE0uMHEvotC6vcWB6yQwJq3QUxi1-gqchcf8py7jIx26QJAv9d_H";                                         /*This is the Sheets GAS ID, you need to look for your sheets id*/
-int No_of_Parameters = 2;   
+char column_name_in_sheets[ ][20] = {"Temperature","Humidity", "Soil"};
+String Sheets_GAS_ID = "AKfycbzlx085YE-C8r64-WFSf_1wxEvAsHJzxyPoHthucdWyufXj-FG7_EDWFruUPjpTakc";                                         
+int No_of_Parameters = 3;    
+
 const char* userSSID = "Ondel-ondel"; // SSID 
 const char* userPass = "qsdi6469"; // Password
 
@@ -58,9 +56,11 @@ const char* userPass = "qsdi6469"; // Password
 String airCondition;
 
 void setup() {
-  Serial.begin(9600); 
+  Serial.begin(9600);
 
   // Relay
+  pinMode(solenoid, OUTPUT);
+  pinMode(solenoid, OUTPUT);
   pinMode(solenoid, OUTPUT);
 
   // Lcd
@@ -82,12 +82,14 @@ void setup() {
 
 void loop() {
   // Dht
-  float humidity = dht.getHumidity();
   float temperature = dht.getTemperature();
+  float humidity = dht.getHumidity();
+
+  // Ldr
+  int ldrValue = analogRead(ldrSensor);
 
   // Rtc
   DateTime waktu = rtc.now();
-  Data_to_Sheets(No_of_Parameters,  temperature,  humidity);
 
   // Oxygen & Carbon Dioxide Sensor (belom ada apa-apa)
   airCondition = "GOOD";
@@ -96,10 +98,27 @@ void loop() {
   soilMoistureValue = analogRead(SensorPin);  //put Sensor insert into soil
   soilmoisturepercent = map(soilMoistureValue, wetRange, dryRange, 0, 100);
 
+  // Google Sheets
+  Data_to_Sheets(No_of_Parameters,  temperature,  humidity, soilmoisturepercent);
+  
   // Reset lcd
   lcd.clear();
 
   // Serial Monitor
+
+  // Rtc
+  Serial.print(waktu.year(), DEC);
+  Serial.print('/');
+  Serial.print(waktu.month(), DEC);
+  Serial.print('/');
+  Serial.print(waktu.day(), DEC);
+  Serial.print(' ');
+  Serial.print(waktu.hour(), DEC);
+  Serial.print(':');
+  Serial.print(waktu.minute(), DEC);
+  Serial.print(':');
+  Serial.println(waktu.second(), DEC);
+  Serial.println("");
 
   // Dht
   Serial.print(dht.getStatusString());
@@ -113,20 +132,6 @@ void loop() {
   Serial.print(dht.computeHeatIndex(temperature, humidity, false), 1);
   Serial.print("\t\t");
   Serial.println(dht.computeHeatIndex(dht.toFahrenheit(temperature), humidity, true), 1);
-
-  // Rtc
-  Serial.print(waktu.year(), DEC);
-  Serial.print('/');
-  Serial.print(waktu.month(), DEC);
-  Serial.print('/');
-  Serial.print(waktu.day(), DEC);
-  Serial.print(' ');
-  Serial.print(waktu.hour(), DEC);
-  Serial.print(':');
-  Serial.print(waktu.minute(), DEC);
-  Serial.print(':');
-  Serial.print(waktu.second(), DEC);
-  Serial.println();
 
   // Soil moisture
   if(soilmoisturepercent >= 100){
@@ -142,7 +147,12 @@ void loop() {
   }
   Serial.print("Soil Moisture (V):");
   Serial.println(soilMoistureValue);
-    
+
+  // Ldr
+  Serial.print("Brightness: ");
+  Serial.println(ldrValue);
+  Serial.println("");
+  
   // LCD
 
   // Date & Time
@@ -183,19 +193,41 @@ void loop() {
   lcd.print("DS.Flava ---- 80mdpl");
 
   // Relay
-   if(waktu.hour() == OnHour && waktu.minute() == OnMin){
-    digitalWrite(solenoid, LOW);
-   }
 
-  if(waktu.hour() == OnHour && waktu.minute() == OnMin){
-    digitalWrite(solenoid, HIGH);
-    Serial.println("SOLENOID ON");
-    }
-    
-    else if(waktu.hour() == OffHour && waktu.minute() == OffMin){
-      digitalWrite(solenoid, LOW);
-      Serial.println("SOLENOID OFF");
-    }   
+  // Solenoid
+  relay(waktu, solenoid, 0, 2, 20, 2); // solenoid, NO config, di jam 14:20, selama 2 menit
   
   delay(1000);
+}
+
+void relay(DateTime param, byte pin, byte configure, byte actHour, byte actMinute, byte duration){
+  // NO = 0, NC = 1
+
+  int activate;
+  int inactive;
+  Serial.print("MODE ");
+  Serial.println(inactive);
+
+  if(configure == 0){
+    activate = HIGH; // HIGH
+    inactive = LOW; // LOW
+  } else {
+    activate = LOW; // LOW
+    inactive = HIGH; // HIGH
+  }
+
+  if(param.hour() == actHour && param.minute() == actMinute){
+    digitalWrite(pin, activate);
+    Serial.println("RELAY ON");
+    Serial.println("");
+    }
+    
+    else if(param.hour() == actHour && param.minute() == actMinute+duration+1){
+      digitalWrite(pin, inactive);
+      Serial.println("RELAY OFF");
+      Serial.println("");
+    } else {
+      Serial.println("RELAY INACTIVE");
+      Serial.println("");
+    }
 }
