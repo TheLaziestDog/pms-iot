@@ -4,17 +4,24 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 
 ## ⚡️ Features
 
-### Monitoring
-- Shows the plant [conditions](plant/about.md) on the LCD
-- Monitor plant [conditions](plant/about.md) over IoT
-- Give daily notification of the plant on telegram
+### MONITORING
+- Monitor plant & incubator [conditions](plant/about.md) 
+- Shows the sensors data on a LCD display
+	
+### CONTROL
+- Controls incubator temperature and humidity.
+- Regulates how much sunlight the plant will get.
+- Protects the plant from potential threats such as insects, pests, and diseases.
 
-### Automation
-- Automatic plant watering
-- Automatic fertilizer (nutrition) feeder
-- Maintain plant soil moisture
-- Maintain incubator temperature
-- Maintain the amount of light intensity the plant will get
+### AUTOMATION
+- Provide the plant with sufficient and appropriate nutrition at the right time based on the time and NPK sensor data.
+- Water the plant automatically based on the time, soil moisture, temperature, and humidity data that the sensor gather..
+
+### IOT
+- Sends data sensors to multiple IoT platforms such as a custom spreadsheet database and Blynk IoT.
+- Regularly collect all of the (conditions) data automatically and systematically to provide the users with ready to use (matured) data for further analysis of the plant condition.
+- Can integrate with any existing system management.
+
 
 ## ♥️ How To Contribute
 To contribute, you need to make a new branch and adding changes inside that branch, or you can just adding changes in the main branch, but you need to click on the "Create a new branch for this commit and start a pull request", so it can automatically create new branch for your changes, so your changes can be merged from pull request. 
