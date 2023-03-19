@@ -4,20 +4,20 @@ PMS or Plant Monitoring System, is a school engineering project that utilize Aut
 
 ## ⚡️ Features
 
-### MONITORING
+### Monitoring
 - Monitor plant & incubator [conditions](plant/about.md) 
 - Shows the sensors data on a LCD display
 	
-### CONTROL
+### Control
 - Controls incubator temperature and humidity.
 - Regulates how much sunlight the plant will get.
 - Protects the plant from potential threats such as insects, pests, and diseases.
 
-### AUTOMATION
+### Automation
 - Provide the plant with sufficient and appropriate nutrition at the right time based on the time and NPK sensor data.
 - Water the plant automatically based on the time, soil moisture, temperature, and humidity data that the sensor gather..
 
-### IOT
+### IoT
 - Sends data sensors to multiple IoT platforms such as a custom spreadsheet database and Blynk IoT.
 - Regularly collect all of the (conditions) data automatically and systematically to provide the users with ready to use (matured) data for further analysis of the plant condition.
 - Can integrate with any existing system management.
