@@ -18,10 +18,10 @@
 
     Automation
     - Provide the plant with sufficient and appropriate nutrition at the right time based on the time and NPK sensor data.
-    - Water the plant automatically based on the time, soil moisture, temperature, and humidity data that the sensor gather..
+    - Water the plant automatically based on the time, soil moisture, temperature, and humidity data that the sensor gather.
 
     IoT
-    - Sends data sensors to multiple IoT platforms such as a custom spreadsheet database and Blynk IoT.
+    - Sends data sensors to multiple IoT platforms such as a custom spreadsheet database.
     - Regularly collect all of the (conditions) data automatically and systematically to provide the users with ready to use (matured) data for further analysis of the plant condition.
     - Can integrate with any existing system management.
 */
