@@ -32,7 +32,6 @@
   #include <Wire.h> // I2C (Wire) Communication Library 
   #include <LiquidCrystal_I2C.h> // LCD I2C Library
   #include "DHTesp.h" // DHT Sensors Library For ESP
-  #include <EEPROM.h>
 
   // RTC Library
   #include "uRTCLib.h" // RTC Library
