@@ -8,22 +8,19 @@
 /*
   PMS-IOT Features : 
     Monitoring  
-    - Monitor plant & incubator
-    - Shows the sensors data on a LCD display
+    - Monitor plant & incubator condition.
+    - Shows the sensors data on a LCD display.
 
     Control
     - Controls incubator temperature and humidity.
     - Regulates how much sunlight the plant will get.
-    - Protects the plant from potential threats such as insects, pests, and diseases.
 
     Automation
-    - Provide the plant with sufficient and appropriate nutrition at the right time based on the time and NPK sensor data.
     - Water the plant automatically based on the time, soil moisture, temperature, and humidity data that the sensor gather.
 
     IoT
     - Sends data sensors to multiple IoT platforms such as a custom spreadsheet database.
     - Regularly collect all of the (conditions) data automatically and systematically to provide the users with ready to use (matured) data for further analysis of the plant condition.
-    - Can integrate with any existing system management.
 */
 
 // Importing 
@@ -51,15 +48,15 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 const unsigned long updateDisplayInterval = 1000;
 
 int lcdSwitchTimer = 0;
-int timerIncrement = 15;
+int timerIncrement = 30;
 
 // RTC
 uRTCLib rtcData(0x68); // The fixed i2c address of rtc is 0x68
 
 // CAPACITIVE SOIL MOISTURE
-const byte soilMoisturePin = 2; // GPIO 2 = D4
-const int wetRange = 239;   //needs more calibartion
-const int dryRange = 595;  //needs more calibartion
+const byte soilMoisturePin = 15; // GPIO 15 = D8
+const int wetRange = 790;   //needs more calibartion
+const int dryRange = 390;  //needs more calibartion
 
 // RELAY
 const byte solenoid = 14; // GPIO 14 = D5
@@ -97,11 +94,11 @@ byte npkState = 0;
 DFRobot_OxygenSensor Oxygen;
 
 // Co2 Sensor
-const byte co2SensorPin = 15; // GPIO 15 = D8
+const byte co2SensorPin = 16; // GPIO 16 = D0
 
 // Other Sensors
 DHTesp dht;
-const byte dhtPin = 16; // GPIO 16 = D0
+const byte dhtPin = 2; // GPIO 2 = D4
 const byte ldrPin = 0; // GPIO 0 = D3
 
 // AnalogReadSensor
@@ -113,6 +110,7 @@ unsigned long previousTime_0 = 0;
 unsigned long previousTime_1 = 0;
 unsigned long previousTime_2 = 0;
 unsigned long previousTime_3 = 0;
+unsigned long previousTime_4 = 0;
 
 // ==== Climate Control ====
 
@@ -130,15 +128,19 @@ const float nightTemp = 24.0;
 const float idealHumidity = 70.0;
 
 // ==== IoT ====
-const char* ssid     = "gemaauraku";
-const char* password = "sagaradhia121307";
+const char* ssid     = "Ondel-ondel";
+const char* password = "qsdi6469";
 
 // Enter Google Script Deployment ID:
 const char *GScriptId = "AKfycbxS8SrBs6YozBn8yIJrLIJVnbr9Lip9SpMsfiMt_J57GC4frb-8CohRPuZR7PmxDpuk";
 
 // Enter command (insert_row or append_row) and your Google Sheets sheet name (default is Sheet1):
-String payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"ESP DATA LOGGING\", \"values\": ";
+String realtime_payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"REALTIME DATA LOGGING\", \"values\": ";
+String daily_payload_base =  "{\"command\": \"insert_row\", \"sheet_name\": \"DAILY PLANT & INCUBATOR CONDITION\", \"values\": ";
 String payload = "";
+
+float dailyDataTotal[6] {0, 0, 0, 0, 0, 0}; // An array of all the daily sensors data total value
+int dataQuantity[6] = {0, 0, 0, 0, 0, 0}; // An array of numbers that count how much (quantity) sensors data logging happens in one day
 
 // Google Sheets setup (do not edit)
 const char* host = "script.google.com";
@@ -169,7 +171,6 @@ void setup() {
   dht.setup(dhtPin, DHTesp::DHT11);
   delay(dht.getMinimumSamplingPeriod());
 
-
   // Lcd
   lcd.init();
   lcd.backlight();
@@ -177,7 +178,7 @@ void setup() {
   // Rtc
   URTCLIB_WIRE.begin();
   //rtcData.set(DateTime(__DATE__, __TIME__));
-  rtcData.set(0, 35, 16, 4, 24, 5, 23); // 0:12:56 PM 2/4/23
+  rtcData.set(0, 15, 10, 7, 27, 5, 23); // 8:20:0 AM 27/5/23x
   // index starts from 1 not 0
   // rtcData.set(second, minute, hour, dayOfWeek, dayOfMonth, month, year)
   // set day of week (1=Sunday, 7=Saturday)
@@ -261,8 +262,16 @@ void loop() {
   float temperatureData = dht.getTemperature();
   float humidityData = dht.getHumidity();
 
+  dailyDataTotal[0] += temperatureData;
+  dataQuantity[0]++;
+
+  dailyDataTotal[1] += humidityData;
+  dataQuantity[1]++;
+
   // O2 Sensor
   float oxygenData = Oxygen.getOxygenData(COLLECT_NUMBER);
+  dailyDataTotal[3] += oxygenData;
+  dataQuantity[3]++;
 
   // CO2 Sensor
   int co2SVal;
@@ -274,13 +283,13 @@ void loop() {
   float soilMoisturePercent;
   
   // Ldr
-  int brightnessData;
+  float brightnessData;
 
   // IoT
   static bool flag = false;
-  int usableBrightnessData;
-  float usableSoilMoistureData;
-  float usableCo2Data;
+  float analogBrightnessData;
+  float analogSoilMoistureData;
+  float analogCo2Data;
 
   // ==== Sensors Data Reading ====
 
@@ -338,7 +347,7 @@ void loop() {
   lcd.print(dateTimeBuffer);  
 
   lcd.setCursor(0, 3);
-  lcd.print(F("DS.Flava ---- 80mdpl"));
+  lcd.print(F("  D. Lineale White  "));
 
   // Displaying Sensors Data
   if(lcdSwitchTimer < 45){
@@ -347,8 +356,11 @@ void loop() {
       lcd.print(F("Temp Humd Brightness"));
       
       brightnessData = analogReadSensor(ldrPin);
-      usableBrightnessData = brightnessData;
+      analogBrightnessData = brightnessData;
       
+      dailyDataTotal[2] += brightnessData;
+      dataQuantity[2]++;
+            
       lcd.setCursor(0, 1);
       lcd.print(temperatureData, 1);
 
@@ -365,23 +377,29 @@ void loop() {
       co2SVal = analogReadSensor(co2SensorPin);
       co2SVoltage = co2SVal*(5000/1024.0);
       co2Data = getCo2Data(co2SVoltage);
+      Serial.println(co2Data);
 
-      usableCo2Data = co2Data;
+      analogCo2Data = co2Data;
+      dailyDataTotal[4] += co2Data;
+      dataQuantity[4]++;
 
       lcd.setCursor(3, 1);
       lcd.print("nan");
       lcd.print(F("%"));
 
       lcd.setCursor(14, 1);
-      lcd.print("nan");
-      lcd.print(F("%"));  
+      lcd.print(co2Data, 0);
     } 
     else if(lcdSwitchTimer >= 30 && lcdSwitchTimer <= 45){
       lcd.setCursor(0, 0);
       lcd.print(F("Soil Moist NPK Ratio"));
-
+        
       soilMoistureValue = analogReadSensor(soilMoisturePin);
-      soilMoisturePercent = map(soilMoistureValue, wetRange, dryRange, 0, 100);
+      soilMoisturePercent = map(soilMoistureValue, dryRange, wetRange, 0, 100);
+      Serial.println(soilMoisturePercent);
+
+      dailyDataTotal[5] += soilMoisturePercent;
+      dataQuantity[5]++;
 
       if(soilMoisturePercent >= 100){
         soilMoisturePercent = 100;
@@ -389,7 +407,7 @@ void loop() {
         soilMoisturePercent = 0;
       }
 
-      usableSoilMoistureData = soilMoisturePercent;
+      analogSoilMoistureData = soilMoisturePercent;
 
       lcd.setCursor(0, 1);
       lcd.print(soilMoisturePercent, 2);
@@ -412,7 +430,7 @@ void loop() {
   // ==== Relay ====
   
   if(rtcData.day() - previousTime_2 >= wateringDayInterval){
-    if(soilMoisturePercent >= drySoil){
+    if(soilMoisturePercent <= 15){
       isWateringTime = true;
     }
     previousTime_2 = rtcData.day();
@@ -435,7 +453,7 @@ void loop() {
     }
   } 
   
-  if(rtcData.hour() >= 19 && rtcData.hour() <= 1) {
+  if(rtcData.hour() >= 18 && rtcData.hour() <= 1) {
     if(temperatureData >= nightTemp){
       digitalWrite(fan, HIGH);
     } else {
@@ -443,7 +461,7 @@ void loop() {
     }
   }
 
-  if(rtcData.hour() >= 19 && rtcData.hour() <= 5){
+  if(rtcData.hour() >= 18 && rtcData.hour() <= 5){
     digitalWrite(ledStrip, HIGH);
   } else {
     digitalWrite(ledStrip, LOW);
@@ -468,7 +486,7 @@ void loop() {
     }
     
     // Create json object string to send to Google Sheets
-    payload = payload_base + "\"" + temperatureData + "," + humidityData + "," + usableBrightnessData + "," + usableSoilMoistureData + "," + npkRatBuffer + "," + oxygenData + "," + co2Data + "\"}";
+    payload = realtime_payload_base + "\"" + temperatureData + "," + humidityData + "," + analogBrightnessData + "," + analogSoilMoistureData + "," + npkRatBuffer + "," + oxygenData + "," + analogCo2Data + "\"}";
     
     // Publish data to Google Sheets
     Serial.println("Publishing data...");
@@ -483,7 +501,50 @@ void loop() {
 
     previousTime_3 = currentTime;
   }
-  
+
+  // Daily Data Logging
+  if(rtcData.day() - previousTime_4 >= 1){ // this means all of the data will be sent to the google sheets every day (24 hour)
+    if (!flag){
+      client = new HTTPSRedirect(httpsPort);
+      client->setInsecure();
+      flag = true;
+      client->setPrintResponseBody(true);
+      client->setContentTypeHeader("application/json");
+    }
+    if (client != nullptr){
+      if (!client->connected()){
+        client->connect(host, httpsPort);
+      }
+    }
+    else{
+      Serial.println("Error creating client object!");
+    }
+    
+    for(int i = 0; i < 6; i++){
+      dailyDataTotal[i] = dailyDataTotal[i] / dataQuantity[i];
+    }
+
+    // Create json object string to send to Google Sheets
+    payload = daily_payload_base + "\"" + dailyDataTotal[0] + "," + dailyDataTotal[1] + "," + dailyDataTotal[2] + "," + dailyDataTotal[5] + "," + npkRatBuffer + "," + dailyDataTotal[3] + "," + dailyDataTotal[4] + "\"}";
+    
+    // Publish data to Google Sheets
+    Serial.println("Publishing data...");
+    Serial.println(payload);
+    if(client->POST(url, host, payload)){ 
+      Serial.println("Daily data log is succesful!");
+    }
+    else{
+      Serial.println("Daily data log isn't succesful :(");
+      Serial.println("Error while connecting");
+    }
+
+    previousTime_4 = currentTime;
+    
+    for(int i = 0; i < 6; i++){
+      dailyDataTotal[i] = 0;
+      dataQuantity[i] = 0;
+    }
+  }
 }
 
 float getCo2Data(float voltage){
